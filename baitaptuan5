@@ -1,0 +1,381 @@
+using System.Drawing.Text;
+
+namespace Lab03_02;
+
+public partial class Form1 : Form
+{
+    string tenFile = "";
+
+    public Form1()
+    {
+        InitializeComponent();
+
+        TaoDanhSachFont();
+        TaoDanhSachSize();
+
+        cboFont.Text = "Tahoma";
+        cboSize.Text = "14";
+
+        rtbVanBan.Font = new Font("Tahoma", 14);
+
+        CapNhatSoTu();
+    }
+
+    private void TaoDanhSachFont()
+    {
+        InstalledFontCollection fonts = new InstalledFontCollection();
+
+        foreach (FontFamily font in fonts.Families)
+        {
+            cboFont.Items.Add(font.Name);
+        }
+    }
+
+    private void TaoDanhSachSize()
+    {
+        int[] sizes =
+        {
+            8, 9, 10, 11, 12, 14, 16,
+            18, 20, 22, 24, 26, 28,
+            36, 48, 72
+        };
+
+        foreach (int size in sizes)
+        {
+            cboSize.Items.Add(size.ToString());
+        }
+    }
+
+    private void btnMoi_Click(object sender, EventArgs e)
+    {
+        TaoVanBanMoi();
+    }
+
+    private void TaoVanBanMoi()
+    {
+        rtbVanBan.Clear();
+
+        tenFile = "";
+
+        rtbVanBan.Font = new Font("Tahoma", 14);
+        rtbVanBan.ForeColor = Color.Black;
+
+        cboFont.Text = "Tahoma";
+        cboSize.Text = "14";
+
+        Text = "Soạn thảo văn bản";
+
+        CapNhatSoTu();
+    }
+
+    private void btnMo_Click(object sender, EventArgs e)
+    {
+        MoTapTin();
+    }
+
+    private void moTapTinToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+        MoTapTin();
+    }
+
+    private void MoTapTin()
+    {
+        OpenFileDialog dlg = new OpenFileDialog();
+
+        dlg.Filter =
+            "Rich Text Format (*.rtf)|*.rtf|Text files (*.txt)|*.txt";
+
+        dlg.Title = "Mở tập tin";
+
+        if (dlg.ShowDialog() == DialogResult.OK)
+        {
+            tenFile = dlg.FileName;
+
+            if (Path.GetExtension(tenFile).ToLower() == ".rtf")
+            {
+                rtbVanBan.LoadFile(
+                    tenFile,
+                    RichTextBoxStreamType.RichText
+                );
+            }
+            else
+            {
+                rtbVanBan.LoadFile(
+                    tenFile,
+                    RichTextBoxStreamType.PlainText
+                );
+            }
+
+            Text = Path.GetFileName(tenFile);
+
+            CapNhatSoTu();
+        }
+    }
+
+    private void btnLuu_Click(object sender, EventArgs e)
+    {
+        LuuVanBan();
+    }
+
+    private void luuNoiDungToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+        LuuVanBan();
+    }
+
+    private void LuuVanBan()
+    {
+        if (tenFile == "")
+        {
+            SaveFileDialog dlg = new SaveFileDialog();
+
+            dlg.Filter = "Rich Text Format (*.rtf)|*.rtf";
+
+            dlg.Title = "Lưu nội dung văn bản";
+
+            dlg.FileName = "VanBan.rtf";
+
+            if (dlg.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+
+            tenFile = dlg.FileName;
+        }
+
+        rtbVanBan.SaveFile(
+            tenFile,
+            RichTextBoxStreamType.RichText
+        );
+
+        Text = Path.GetFileName(tenFile);
+
+        MessageBox.Show(
+            "Lưu văn bản thành công!",
+            "Thông báo",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Information
+        );
+    }
+
+    private void thoatToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+        Close();
+    }
+
+    private void dinhDangFontToolStripMenuItem_Click(
+        object sender,
+        EventArgs e)
+    {
+        FontDialog fontDlg = new FontDialog();
+
+        fontDlg.ShowColor = true;
+        fontDlg.ShowApply = true;
+        fontDlg.ShowEffects = true;
+        fontDlg.ShowHelp = true;
+
+        if (rtbVanBan.SelectionFont != null)
+        {
+            fontDlg.Font = rtbVanBan.SelectionFont;
+            fontDlg.Color = rtbVanBan.SelectionColor;
+        }
+
+        if (fontDlg.ShowDialog() != DialogResult.Cancel)
+        {
+            rtbVanBan.SelectionFont = fontDlg.Font;
+            rtbVanBan.SelectionColor = fontDlg.Color;
+
+            cboFont.Text = fontDlg.Font.FontFamily.Name;
+            cboSize.Text = ((int)fontDlg.Font.Size).ToString();
+        }
+    }
+
+    private void cboFont_SelectedIndexChanged(
+        object sender,
+        EventArgs e)
+    {
+        if (cboFont.Text == "")
+        {
+            return;
+        }
+
+        Font font;
+
+        if (rtbVanBan.SelectionFont != null)
+        {
+            font = rtbVanBan.SelectionFont;
+        }
+        else
+        {
+            font = rtbVanBan.Font;
+        }
+
+        try
+        {
+            rtbVanBan.SelectionFont = new Font(
+                cboFont.Text,
+                font.Size,
+                font.Style
+            );
+        }
+        catch
+        {
+        }
+    }
+
+    private void cboSize_SelectedIndexChanged(
+        object sender,
+        EventArgs e)
+    {
+        if (cboSize.Text == "")
+        {
+            return;
+        }
+
+        float size = float.Parse(cboSize.Text);
+
+        Font font;
+
+        if (rtbVanBan.SelectionFont != null)
+        {
+            font = rtbVanBan.SelectionFont;
+        }
+        else
+        {
+            font = rtbVanBan.Font;
+        }
+
+        try
+        {
+            rtbVanBan.SelectionFont = new Font(
+                font.FontFamily,
+                size,
+                font.Style
+            );
+        }
+        catch
+        {
+        }
+    }
+
+    private void btnDam_Click(object sender, EventArgs e)
+    {
+        if (rtbVanBan.SelectionFont != null)
+        {
+            Font font = rtbVanBan.SelectionFont;
+
+            FontStyle style = font.Style;
+
+            if (font.Bold)
+            {
+                style = style & ~FontStyle.Bold;
+            }
+            else
+            {
+                style = style | FontStyle.Bold;
+            }
+
+            rtbVanBan.SelectionFont = new Font(
+                font.FontFamily,
+                font.Size,
+                style
+            );
+        }
+    }
+
+    private void btnNghieng_Click(object sender, EventArgs e)
+    {
+        if (rtbVanBan.SelectionFont != null)
+        {
+            Font font = rtbVanBan.SelectionFont;
+
+            FontStyle style = font.Style;
+
+            if (font.Italic)
+            {
+                style = style & ~FontStyle.Italic;
+            }
+            else
+            {
+                style = style | FontStyle.Italic;
+            }
+
+            rtbVanBan.SelectionFont = new Font(
+                font.FontFamily,
+                font.Size,
+                style
+            );
+        }
+    }
+
+    private void btnGachChan_Click(object sender, EventArgs e)
+    {
+        if (rtbVanBan.SelectionFont != null)
+        {
+            Font font = rtbVanBan.SelectionFont;
+
+            FontStyle style = font.Style;
+
+            if (font.Underline)
+            {
+                style = style & ~FontStyle.Underline;
+            }
+            else
+            {
+                style = style | FontStyle.Underline;
+            }
+
+            rtbVanBan.SelectionFont = new Font(
+                font.FontFamily,
+                font.Size,
+                style
+            );
+        }
+    }
+
+    private void rtbVanBan_TextChanged(
+        object sender,
+        EventArgs e)
+    {
+        CapNhatSoTu();
+    }
+
+    private void CapNhatSoTu()
+    {
+        string[] tu = rtbVanBan.Text.Split(
+            new char[]
+            {
+                ' ',
+                '\r',
+                '\n',
+                '\t'
+            },
+            StringSplitOptions.RemoveEmptyEntries
+        );
+
+        lblTrangThai.Text =
+            "Tổng số từ: " + tu.Length;
+    }
+
+    private void rtbVanBan_SelectionChanged(
+        object sender,
+        EventArgs e)
+    {
+        if (rtbVanBan.SelectionFont != null)
+        {
+            cboFont.Text =
+                rtbVanBan.SelectionFont.FontFamily.Name;
+
+            cboSize.Text =
+                ((int)rtbVanBan.SelectionFont.Size).ToString();
+
+            btnDam.Checked =
+                rtbVanBan.SelectionFont.Bold;
+
+            btnNghieng.Checked =
+                rtbVanBan.SelectionFont.Italic;
+
+            btnGachChan.Checked =
+                rtbVanBan.SelectionFont.Underline;
+        }
+    }
+}
